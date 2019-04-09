@@ -40,6 +40,16 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.post("/urls", (req, res) => {
+  console.log(req.body);
+  res.send("Ok");
+});
+
+function generateRandomString() {
+  let radomString = Math.random().toString(32).substring(2, 5) + Math.random().toString(32).substring(2, 5);
+  return radomString;
+}
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
