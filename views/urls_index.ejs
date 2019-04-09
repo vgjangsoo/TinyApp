@@ -1,14 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title>TinyApp</title>
-</head>
+<% include ./partials/_header %>
 <body style="font-size:20px; padding:50px;">
     <!-- Add EJS code here -->
+    <h1>Tiny App</h1>
+    <a href="#">Create New TinyURL</a>
+    <br>
+    <br>
+    <p><strong>My URLs</strong></p>
+  <% for (let key in urls) { %>
+    <li> <%= key %>: <%= urls[key] %></li>
+  <% } %>
+
 </body>
 </html>
+
+<!--
+  "b2xVn2": "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com" -->

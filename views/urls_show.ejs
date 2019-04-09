@@ -1,3 +1,10 @@
-<!DOCTYPE html>
+<% include ./partials/_header %>
+<body style="font-size:20px; padding:50px;">
+    <h1>Tiny App</h1>
+    <a href="#">Create New TinyURL</a>
+    <br>
+    <br>
+    <p><strong>TinyURL for <a href= <%= longURL %> > <%= longURL %> </a></strong></p>
+    <p> <%= shortURL %> </p>
 
-<h1> <a href=<%=longURL%>> <%=longURL%> </a> </h1>
+</body>
