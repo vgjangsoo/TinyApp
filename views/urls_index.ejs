@@ -4,14 +4,18 @@
   <% include ./partials/_header %>
 
     <!-- Add EJS code here -->
+  <form method="POST" action="/urls/9sm5xK/delete">
+
     <h1>Tiny App</h1>
     <a href="#">Create New TinyURL</a>
     <br>
     <br>
     <p><strong>My URLs</strong></p>
-  <% for (let key in urls) { %>
-    <li> <%= key %>: <%= urls[key] %></li>
-  <% } %>
+    <% for (let key in urls) { %>
+      <li> <%= key %>: <%= urls[key] %></li>
+      <button type="delete" class="btn btn-primary"> Delete </button>
+    <% } %>
+  </form>
 
 </body>
 </html>
