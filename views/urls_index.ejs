@@ -14,9 +14,10 @@
       <% for (let key in urls) { %>
       <form method="POST" action="/urls/<%= key %>/delete">
         <li> <%= key %>: <%= urls[key] %> </li>
+        <a href='/urls/<%= key%>'> Edit</a>
         <button type="submit" class="btn btn-primary"> Delete </button>
       </form>
-      <a href='/urls/<%= key%>'> Edit </a>
+
       <% } %>
 
 
