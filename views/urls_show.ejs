@@ -4,10 +4,15 @@
   <% include ./partials/_header %>
 
     <h1>Tiny App</h1>
-    <a href="#">Create New TinyURL</a>
-    <br>
-    <br>
-    <p><strong>TinyURL for <a href= "#" > <%= longURL %> </a></strong></p>
-    <p> <%= shortURL %> </p>
+      <form method="POST" action="/urls/<%= shortURL %>">
+        <a href="#">Create New TinyURL</a>
+          <br>
+          <br>
+        <p><strong>TinyURL for <a href= "#" > <%= longURL %> </a></strong></p>
+
+      <p> <%= shortURL %> </p>
+      <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em">
+      <button type="submit" class="btn btn-primary"> Update </button>
+  </form>
 
 </body>

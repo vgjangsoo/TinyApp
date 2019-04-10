@@ -28,6 +28,13 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+app.post("/urls", (req, res) => {
+  const randomURL = generateRandomString();
+  const longURL = req.body.longURL;
+  urlDatabase[randomURL] = longURL;
+  res.redirect(`/urls/${randomURL}`);
+});
+
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
@@ -40,17 +47,24 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.post("/urls", (req, res) => {
-  const randomURL = generateRandomString();
-  const longURL = req.body.longURL;
-  urlDatabase[randomURL] = longURL;
-  res.redirect(`/urls/${randomURL}`);
-});
+app.post("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const newURL = req.body.longURL;
+  urlDatabase[shortURL] = newURL;
+  res.redirect("/urls/:shortURL");
+})
+
+function generateRandomString() {
+  let radomString = Math.random().toString(32).substring(2, 5) + Math.random().toString(32).substring(2, 5);
+  return radomString;
+}
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 })
+
+
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
@@ -58,10 +72,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls");
 })
 
-function generateRandomString() {
-  let radomString = Math.random().toString(32).substring(2, 5) + Math.random().toString(32).substring(2, 5);
-  return radomString;
-}
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
