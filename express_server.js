@@ -41,10 +41,18 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  const userID = req.cookies["user_id"];
+  // const userEmail = userID[email];
   let templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"]
+    username: userID,
+    // user: users[userID]
+    // user: userEmail
   };
+  // console.log("111111111111111", templateVars);
+  // console.log("userdatabase: ", users)
+  // console.log('users', users, 'id', userID);
+  // console.log(users[userID]);
   res.render("urls_index", templateVars);
 });
 
@@ -57,7 +65,7 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"]
+    username: req.cookies["user_id"]
   }
   res.render("urls_new", templateVars);
 });
@@ -66,7 +74,7 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["username"]
+    username: req.cookies["user_id"]
   };
   res.render("urls_show", templateVars);
 });
@@ -96,20 +104,20 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // The Login Route
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  res.cookie("user_id", req.body.username);
   res.redirect("/urls");
 });
 
 // Logout
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 })
 
 // Registration Page
 app.get("/register", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"]
+    username: req.cookies["user_id"]
   }
   res.render("urls_register", templateVars)
 });
@@ -132,7 +140,7 @@ app.post("/register", (req, res) => {
   const userPassword = req.body.password;
   //Validation to check whether the username and password are not empty
   if(!userEmail || !userPassword){
-    res.send('Hey you must supply username and password. Error: 400');
+    res.send('Hey you must supply your E-mail and password. Error: 400');
   } else {
     //2. validation to verify that email has not been taken.
     var result = checkDuplicateEmail(userEmail);
@@ -175,7 +183,6 @@ app.post("/register", (req, res) => {
   //   }
   // }
 });
-
 
 
 
