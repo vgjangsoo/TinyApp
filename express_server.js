@@ -27,6 +27,32 @@ const users = {
   }
 }
 
+// Generates random string
+function generateRandomString() {
+  let radomString = Math.random().toString(32).substring(2, 5) + Math.random().toString(32).substring(2, 5);
+  return radomString;
+};
+
+//checking if there's same email in the database
+function checkDuplicateEmail(email) {
+  for (var key in users) {
+    if (users[key].email === email) {
+      return key;
+    }
+  }
+};
+
+//check if the password matched on the database
+function checkEmailAndPassword(email, password) {
+  for (var key in users) {
+    if (users[key].email === email) {
+      if(users[key].password === password) {
+        return key;
+      }
+    }
+  }
+};
+
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -42,13 +68,17 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const userID = req.cookies["user_id"];
+  // if (users[userID]) {
+  // }
   // const userEmail = userID[email];
   let templateVars = {
     urls: urlDatabase,
-    username: users[userID]
+    user_id: users[userID]
     // user: users[userID]
     // user: userEmail
   };
+  // console.log("tempvar: ", templateVars);
+  // console.log("useid", userID);
   // console.log("111111111111111", templateVars);
   // console.log("userdatabase: ", users)
   // console.log('users', users, 'id', userID);
@@ -65,7 +95,7 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: users[req.cookies["user_id"]]
+    user_id: users[req.cookies["user_id"]]
   }
   res.render("urls_new", templateVars);
 });
@@ -74,7 +104,7 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: users[req.cookies["user_id"]]
+    user_id: users[req.cookies["user_id"]]
   };
   res.render("urls_show", templateVars);
 });
@@ -85,11 +115,6 @@ app.post("/urls/:shortURL", (req, res) => {
   urlDatabase[shortURL] = newURL;
   res.redirect("/urls");
 });
-
-function generateRandomString() {
-  let radomString = Math.random().toString(32).substring(2, 5) + Math.random().toString(32).substring(2, 5);
-  return radomString;
-};
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
@@ -104,8 +129,33 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // The Login Route
 app.post("/login", (req, res) => {
-  res.cookie("user_id", req.body.username);
-  res.redirect("/urls");
+  const userEmail = req.body.user_id;
+  const userPassword = req.body.password;
+  // console.log(req.body);
+  // const userPassword = req.body.password;
+  if(!userEmail  && !userPassword) {
+    res.send('Hey you must supply your E-mail and password. Error: 400');
+  } else {
+    let result = checkDuplicateEmail(userEmail);
+    if (!result) {
+      res.send('Please register first. Error: 403');
+    } else {
+      //check if the password matches
+      let userID = checkEmailAndPassword(userEmail, userPassword);
+      // console.log(userID);
+      // let users[userID];
+      // let emailCheck = checkDuplicateEmail(userEmail);
+
+      if (!userID) {
+        res.send('Wrong password. Error: 403');
+      } else {
+        // console.log(templateVars);
+        // console.log(userEmail);
+        res.cookie("user_id", userID);
+        res.redirect("/urls");
+      }
+    }
+  }
 });
 
 // Logout
@@ -117,20 +167,11 @@ app.post("/logout", (req, res) => {
 // Registration Page
 app.get("/register", (req, res) => {
   const templateVars = {
-    username: users[req.cookies["user_id"]]
+    user_id: users[req.cookies["user_id"]]
   }
   res.render("urls_register", templateVars)
 });
 
-//checking if there's same email in the database
-function checkDuplicateEmail(email){
-  for(var key in users){
-    if(users[key].email===email){
-      return true;
-    }
-  }
-  return false;
-}
 
 // Registration Handler
 app.post("/register", (req, res) => {
@@ -158,38 +199,14 @@ app.post("/register", (req, res) => {
       res.cookie("user_id", userRandomID);
       res.redirect("/urls");
     }
-
   }
-  // Below is the code that I made by myself, previous one is done with assistance
-  // const userRandomID = generateRandomString();
-  // const userEmail = req.body.email;
-  // const userPassword = req.body.password;
-  // // handle errors
-  // for (let key in users) {
-  //   if (userEmail) {
-  //     if (userEmail !== users[key].email) {
-  //       users[userRandomID] = {};
-  //       users[userRandomID].id = userRandomID;
-  //       users[userRandomID].email = userEmail;
-  //       users[userRandomID].password = userPassword;
-  //       console.log(users);
-  //       res.cookie("user_id", userRandomID);
-  //       res.redirect("/urls");
-  //     } else {
-  //       res.send("<html><body>Error<b> 400 : existing email</b></body></html>\n")
-  //     }
-  //   } else {
-  //     res.send("<html><body>Error<b> 400 : plase register again </b></body></html>\n")
-  //   }
-  // }
 });
 
 // rendering to login page
 app.get("/login", (req, res) => {
   let templateVars = {
-    username : users[req.body.username]
+    user_id : users[req.body.user_id]
   }
-  // res.cookie("user_id", req.body.username);
   res.render("urls_login", templateVars);
 })
 
