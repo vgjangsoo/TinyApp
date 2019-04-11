@@ -9,8 +9,8 @@ app.set("view engine", "ejs");
 app.use(cookieParser());
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
 // Create a users obj
@@ -89,7 +89,10 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   const randomURL = generateRandomString();
   const longURL = req.body.longURL;
-  urlDatabase[randomURL] = longURL;
+  urlDatabase[randomURL] = {
+    longURL:longURL,
+    user_id:req.cookies["user_id"]
+  }
   res.redirect(`/urls/${randomURL}`);
 });
 
@@ -109,7 +112,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user_id: users[req.cookies["user_id"]]
   };
   res.render("urls_show", templateVars);
@@ -123,7 +126,7 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -151,7 +154,6 @@ app.post("/login", (req, res) => {
       // console.log(userID);
       // let users[userID];
       // let emailCheck = checkDuplicateEmail(userEmail);
-
       if (!userID) {
         res.send('Wrong password. Error: 403');
       } else {
