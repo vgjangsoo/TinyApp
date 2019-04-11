@@ -152,7 +152,7 @@ app.post("/register", (req, res) => {
     }
 
   }
-
+  // Below is the code that I made by myself, previous one is done with assistance
   // const userRandomID = generateRandomString();
   // const userEmail = req.body.email;
   // const userPassword = req.body.password;
