@@ -97,7 +97,13 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user_id: users[req.cookies["user_id"]]
   }
-  res.render("urls_new", templateVars);
+  // console.log(req.cookies["user_id"]);
+  // console.log(users[req.cookies["user_id"]]);
+  if (!users[req.cookies["user_id"]]) {
+    res.redirect("/register")
+  } else {
+    res.render("urls_new", templateVars);
+  }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
