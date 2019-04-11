@@ -65,7 +65,7 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["user_id"]
+    username: users[req.cookies["user_id"]]
   }
   res.render("urls_new", templateVars);
 });
@@ -184,7 +184,14 @@ app.post("/register", (req, res) => {
   // }
 });
 
-
+// rendering to login page
+app.get("/login", (req, res) => {
+  let templateVars = {
+    username : users[req.body.username]
+  }
+  // res.cookie("user_id", req.body.username);
+  res.render("urls_login", templateVars);
+})
 
 
 
