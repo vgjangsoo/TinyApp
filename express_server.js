@@ -45,7 +45,7 @@ app.get("/urls", (req, res) => {
   // const userEmail = userID[email];
   let templateVars = {
     urls: urlDatabase,
-    username: userID,
+    username: users[userID]
     // user: users[userID]
     // user: userEmail
   };
@@ -74,7 +74,7 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["user_id"]
+    username: users[req.cookies["user_id"]]
   };
   res.render("urls_show", templateVars);
 });
@@ -117,7 +117,7 @@ app.post("/logout", (req, res) => {
 // Registration Page
 app.get("/register", (req, res) => {
   const templateVars = {
-    username: req.cookies["user_id"]
+    username: users[req.cookies["user_id"]]
   }
   res.render("urls_register", templateVars)
 });
@@ -154,7 +154,7 @@ app.post("/register", (req, res) => {
       users[userRandomID].id = userRandomID;
       users[userRandomID].email = userEmail;
       users[userRandomID].password = userPassword;
-      console.log(users);
+      // console.log(users);
       res.cookie("user_id", userRandomID);
       res.redirect("/urls");
     }

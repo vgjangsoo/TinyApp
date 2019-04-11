@@ -9,7 +9,7 @@
   <title>TinyApp</title>
 
   <% if (username) { %>
-    <h3>Hello, <%= username %></h3>
+    <h3>Hello, <%= username.email %></h3>
     <form method="POST" action="/logout">
       <button type="submit" class="btn btn-primary"> Logout </button>
     </form>
