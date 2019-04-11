@@ -13,6 +13,21 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// Create a users obj
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+}
+
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -60,7 +75,7 @@ app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const newURL = req.body.longURL;
   urlDatabase[shortURL] = newURL;
-  res.redirect("/urls/:shortURL");
+  res.redirect("/urls");
 });
 
 function generateRandomString() {
@@ -97,7 +112,73 @@ app.get("/register", (req, res) => {
     username: req.cookies["username"]
   }
   res.render("urls_register", templateVars)
-})
+});
+
+//checking if there's same email in the database
+function checkDuplicateEmail(email){
+  for(var key in users){
+    if(users[key].email===email){
+      return true;
+    }
+  }
+  return false;
+}
+
+// Registration Handler
+app.post("/register", (req, res) => {
+
+  //1. get the user email and password
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  //Validation to check whether the username and password are not empty
+  if(!userEmail || !userPassword){
+    res.send('Hey you must supply username and password. Error: 400');
+  } else {
+    //2. validation to verify that email has not been taken.
+    var result = checkDuplicateEmail(userEmail);
+    if(result){
+      //it means the email has been taken
+      res.send('Email is already taken. Please try with another one. Error: 400');
+    } else{
+      //everything looks fine. go ahead with registration.
+      const userRandomID = generateRandomString();
+      users[userRandomID] =  {};
+      users[userRandomID].id = userRandomID;
+      users[userRandomID].email = userEmail;
+      users[userRandomID].password = userPassword;
+      console.log(users);
+      res.cookie("user_id", userRandomID);
+      res.redirect("/urls");
+    }
+
+  }
+
+  // const userRandomID = generateRandomString();
+  // const userEmail = req.body.email;
+  // const userPassword = req.body.password;
+  // // handle errors
+  // for (let key in users) {
+  //   if (userEmail) {
+  //     if (userEmail !== users[key].email) {
+  //       users[userRandomID] = {};
+  //       users[userRandomID].id = userRandomID;
+  //       users[userRandomID].email = userEmail;
+  //       users[userRandomID].password = userPassword;
+  //       console.log(users);
+  //       res.cookie("user_id", userRandomID);
+  //       res.redirect("/urls");
+  //     } else {
+  //       res.send("<html><body>Error<b> 400 : existing email</b></body></html>\n")
+  //     }
+  //   } else {
+  //     res.send("<html><body>Error<b> 400 : plase register again </b></body></html>\n")
+  //   }
+  // }
+});
+
+
+
+
 
 
 
