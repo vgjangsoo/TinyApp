@@ -2,7 +2,8 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
@@ -46,8 +47,6 @@ function checkDuplicateEmail(email) {
 function urlsForUser(id) {
   let newURL = {};
   for (let key in urlDatabase) {
-    // console.log("in method id", id)
-    // console.log("in ursl method", urlDatabase[key].userID)
     if (urlDatabase[key].userID === id) {
       newURL[key] = urlDatabase[key];
     }
@@ -59,7 +58,7 @@ function urlsForUser(id) {
 function checkEmailAndPassword(email, password) {
   for (var key in users) {
     if (users[key].email === email) {
-      if(users[key].password === password) {
+      if(bcrypt.compareSync(password, users[key].password)) {
         return key;
       }
     }
@@ -83,7 +82,7 @@ app.get("/urls", (req, res) => {
   const userID = req.cookies["user_id"];
   // console.log("userID: ", userID.toString());
   // console.log("database:", urlDatabase);
-  const URLs = urlsForUser(userID.toString());
+  const URLs = urlsForUser(userID);
   // console.log("URLs: ", URLs);
   // if (users[userID]) {
   // }
@@ -152,25 +151,17 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/login", (req, res) => {
   const userEmail = req.body.user_id;
   const userPassword = req.body.password;
-  // console.log(req.body);
-  // const userPassword = req.body.password;
-  if(!userEmail  && !userPassword) {
+  if(!userEmail && !userPassword) {
     res.send('Hey you must supply your E-mail and password. Error: 400');
   } else {
     let result = checkDuplicateEmail(userEmail);
     if (!result) {
       res.send('Please register first. Error: 403');
     } else {
-      //check if the password matches
       let userID = checkEmailAndPassword(userEmail, userPassword);
-      // console.log(userID);
-      // let users[userID];
-      // let emailCheck = checkDuplicateEmail(userEmail);
       if (!userID) {
         res.send('Wrong password. Error: 403');
       } else {
-        // console.log(templateVars);
-        // console.log(userEmail);
         res.cookie("user_id", userID);
         res.redirect("/urls");
       }
@@ -214,7 +205,7 @@ app.post("/register", (req, res) => {
       users[userRandomID] =  {};
       users[userRandomID].id = userRandomID;
       users[userRandomID].email = userEmail;
-      users[userRandomID].password = userPassword;
+      users[userRandomID].password = bcrypt.hashSync(userPassword, 10);
       // console.log(users);
       res.cookie("user_id", userRandomID);
       res.redirect("/urls");
