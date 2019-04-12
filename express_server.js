@@ -29,7 +29,7 @@ const users = {
     email: "user2@example.com",
     password: "dishwasher-funk"
   }
-}
+};
 
 // Generates random string
 function generateRandomString() {
@@ -68,6 +68,18 @@ function checkEmailAndPassword(email, password) {
   }
 };
 
+//current date function
+function getCurrentDate() {
+    var currentDate = new Date();
+    var day = (currentDate.getDate() < 10 ? '0' : '') + currentDate.getDate();
+    var month = ((currentDate.getMonth() + 1) < 10 ? '0' : '') + (currentDate.getMonth() + 1);
+    var year = currentDate.getFullYear();
+    var hour = (currentDate.getHours() < 10 ? '0' : '') + currentDate.getHours();
+    var minute = (currentDate.getMinutes() < 10 ? '0' : '') + currentDate.getMinutes();
+    var second = (currentDate.getSeconds() < 10 ? '0' : '') + currentDate.getSeconds();
+    return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+};
+
 // redirects to the homepage
 app.get("/", (req, res) => {
   if (!users[req.session.user_id]) {
@@ -83,7 +95,8 @@ app.get("/urls", (req, res) => {
   const URLs = urlsForUser(userID);
   let templateVars = {
     urls: URLs,
-    user_id: users[userID]
+    user_id: users[userID],
+    date: getCurrentDate()
   };
   // see if logged in or not
   if (!users[req.session.user_id]) {
@@ -130,7 +143,8 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
-    user_id: users[req.session.user_id]
+    user_id: users[req.session.user_id],
+    date: getCurrentDate()
   };
   // if the user is not logged in,
   if (!users[req.session.user_id]) {
@@ -144,7 +158,7 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 });
 
-//POST
+//POST: edit
 app.post("/urls/:shortURL", (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
     return res.send(`<html><h1><a href="/login">Login<a> and create ShortURL.</h1></html>`);
@@ -262,6 +276,7 @@ app.get("/login", (req, res) => {
   res.render("urls_login", templateVars);
 })
 
+//listen 8080
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
