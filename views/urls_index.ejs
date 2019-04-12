@@ -6,19 +6,22 @@
     <!-- Add EJS code here -->
 
     <h1>Tiny App</h1>
-      <a href="#">Create New TinyURL</a>
+      <a href="/urls/new">Create New TinyURL</a>
         <br>
       <br>
     <p><strong>My URLs</strong></p>
-
-      <% for (let key in urls) { %>
-      <form method="POST" action="/urls/<%= key %>/delete">
-        <li> <%= key %>: <%= urls[key].longURL %> </li>
-        <a href='/urls/<%= key%>'> Edit</a>
-        <button type="submit" class="btn btn-primary"> Delete </button>
-      </form>
-
+      <% if(user_id) { %>
+        <% for (let key in urls) { %>
+        <form method="POST" action="/urls/<%= key %>/delete">
+          <li> <%= key %>: <%= urls[key].longURL %> </li>
+          <a href='/urls/<%= key%>'> Edit</a>
+          <button type="submit" class="btn btn-primary"> Delete </button>
+        </form>
+        <% } %>
+      <% } else { %>
+        <h3>Please Register or Login</h3>
       <% } %>
+
 
 
 </body>

@@ -42,6 +42,19 @@ function checkDuplicateEmail(email) {
   }
 };
 
+//check if there's user_id
+function urlsForUser(id) {
+  let newURL = {};
+  for (let key in urlDatabase) {
+    // console.log("in method id", id)
+    // console.log("in ursl method", urlDatabase[key].userID)
+    if (urlDatabase[key].userID === id) {
+      newURL[key] = urlDatabase[key];
+    }
+  }
+  return newURL;
+};
+
 //check if the password matched on the database
 function checkEmailAndPassword(email, password) {
   for (var key in users) {
@@ -68,21 +81,18 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const userID = req.cookies["user_id"];
+  // console.log("userID: ", userID.toString());
+  // console.log("database:", urlDatabase);
+  const URLs = urlsForUser(userID.toString());
+  // console.log("URLs: ", URLs);
   // if (users[userID]) {
   // }
   // const userEmail = userID[email];
   let templateVars = {
-    urls: urlDatabase,
+    urls: URLs,
     user_id: users[userID]
-    // user: users[userID]
-    // user: userEmail
   };
-  // console.log("tempvar: ", templateVars);
-  // console.log("useid", userID);
-  // console.log("111111111111111", templateVars);
-  // console.log("userdatabase: ", users)
-  // console.log('users', users, 'id', userID);
-  // console.log(users[userID]);
+
   res.render("urls_index", templateVars);
 });
 
@@ -90,9 +100,10 @@ app.post("/urls", (req, res) => {
   const randomURL = generateRandomString();
   const longURL = req.body.longURL;
   urlDatabase[randomURL] = {
-    longURL:longURL,
-    user_id:req.cookies["user_id"]
+    longURL: longURL,
+    userID: req.cookies["user_id"]
   }
+  // console.log("000000000000000000:", urlDatabase);
   res.redirect(`/urls/${randomURL}`);
 });
 
@@ -110,18 +121,19 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = {
+  const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
     user_id: users[req.cookies["user_id"]]
   };
+  // console.log("short url page:", urlDatabase);
   res.render("urls_show", templateVars);
 });
 
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const newURL = req.body.longURL;
-  urlDatabase[shortURL] = newURL;
+  urlDatabase[shortURL].longURL = newURL;
   res.redirect("/urls");
 });
 
