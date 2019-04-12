@@ -2,14 +2,14 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
-const cookieSession = require('cookie-session');
-const bcrypt = require('bcrypt');
+const cookieSession = require("cookie-session");
+const bcrypt = require("bcrypt");
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(cookieSession({
-  name: 'session',
-  keys: ['secret keys']
+  name: "session",
+  keys: ["secret keys"]
 }));
 
 const urlDatabase = {
@@ -67,20 +67,12 @@ function checkEmailAndPassword(email, password) {
     }
   }
 };
-
-
+// redirects to the homepage
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect("/urls");
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
+//main page GET
 app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
   const URLs = urlsForUser(userID);
@@ -88,10 +80,10 @@ app.get("/urls", (req, res) => {
     urls: URLs,
     user_id: users[userID]
   };
-
   res.render("urls_index", templateVars);
 });
 
+//main page POST
 app.post("/urls", (req, res) => {
   const randomURL = generateRandomString();
   const longURL = req.body.longURL;
@@ -102,26 +94,29 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${randomURL}`);
 });
 
+// "/urls/new" page GET
 app.get("/urls/new", (req, res) => {
   const templateVars = {
     user_id: users[req.session.user_id]
   }
   if (!users[req.session.user_id]) {
-    res.redirect("/register")
+    res.redirect("/login")
   } else {
     res.render("urls_new", templateVars);
   }
 });
 
+// "urls/:shortURL" GET
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
     user_id: users[req.session.user_id]
   };
-  res.render("urls_show", templateVars);
+    res.render("urls_show", templateVars);
 });
 
+//POST
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const newURL = req.body.longURL;
@@ -129,11 +124,13 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect("/urls");
 });
 
+//GET
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
+//delete
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
@@ -145,15 +142,15 @@ app.post("/login", (req, res) => {
   const userEmail = req.body.user_id;
   const userPassword = req.body.password;
   if(!userEmail && !userPassword) {
-    res.send('Hey you must supply your E-mail and password. Error: 400');
+    res.send("Hey you must supply your E-mail and password. Error: 400");
   } else {
     let result = checkDuplicateEmail(userEmail);
     if (!result) {
-      res.send('Please register first. Error: 403');
+      res.send("Please register first. Error: 403");
     } else {
       let userID = checkEmailAndPassword(userEmail, userPassword);
       if (!userID) {
-        res.send('Wrong password. Error: 403');
+        res.send("Wrong password. Error: 403");
       } else {
         req.session.user_id = userID;
         res.redirect("/urls");
@@ -185,15 +182,15 @@ app.post("/register", (req, res) => {
   const userPassword = req.body.password;
   //Validation to check whether the username and password are not empty
   if(!userEmail || !userPassword){
-    res.send('Hey you must supply your E-mail and password. Error: 400');
+    res.send("Hey you must supply your E-mail and password. Error: 400");
   } else {
     //2. validation to verify that email has not been taken.
     var result = checkDuplicateEmail(userEmail);
     if(result){
       //it means the email has been taken
-      res.send('Email is already taken. Please try with another one. Error: 400');
+      res.send("Email is already taken. Please try with another one. Error: 400");
     } else{
-      //everything looks fine. go ahead with registration.
+      //registration.
       const userRandomID = generateRandomString();
       users[userRandomID] =  {};
       users[userRandomID].id = userRandomID;
@@ -212,7 +209,6 @@ app.get("/login", (req, res) => {
   }
   res.render("urls_login", templateVars);
 })
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

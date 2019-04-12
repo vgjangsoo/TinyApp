@@ -14,12 +14,12 @@
         <% for (let key in urls) { %>
         <form method="POST" action="/urls/<%= key %>/delete">
           <li> <%= key %>: <%= urls[key].longURL %> </li>
-          <a href='/urls/<%= key%>'> Edit</a>
+          <a href="/urls/<%= key%>"> Edit</a>
           <button type="submit" class="btn btn-primary"> Delete </button>
         </form>
         <% } %>
       <% } else { %>
-        <h3>Please Register or Login</h3>
+        <h3>Please <a href="/register">Register</a> or <a href="/login">Login</a></h3>
       <% } %>
 
 </body>

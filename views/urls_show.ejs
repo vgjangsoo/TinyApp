@@ -10,7 +10,9 @@
           <br>
         <p><strong>TinyURL for <%= longURL %> </strong></p>
         <p> <a href= "/u/<%= shortURL%>" > <%= shortURL %> </a></p>
+        <p>Short URL (Copy this shortURL and share with friends!!) = localhost:8080/u/<%= shortURL%> </p>
         <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em">
         <button type="submit" class="btn btn-primary"> Update </button>
       </form>
+      <p><a href="/urls">Main Page</a></p>
 </body>
