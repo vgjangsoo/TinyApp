@@ -67,9 +67,14 @@ function checkEmailAndPassword(email, password) {
     }
   }
 };
+
 // redirects to the homepage
 app.get("/", (req, res) => {
-  res.redirect("/urls");
+  if (!users[req.session.user_id]) {
+    res.redirect("/login");
+  } else {
+    res.redirect("/urls");
+  }
 });
 
 //main page GET
@@ -80,11 +85,20 @@ app.get("/urls", (req, res) => {
     urls: URLs,
     user_id: users[userID]
   };
-  res.render("urls_index", templateVars);
+  // see if logged in or not
+  if (!users[req.session.user_id]) {
+    res.send(`<html><h1>Please <a href="/login">login</a> first!</h1></html>`);
+  } else {
+    res.render("urls_index", templateVars);
+  }
 });
 
 //main page POST
 app.post("/urls", (req, res) => {
+  // see if the user is logged in or not
+  if (!users[req.session.user_id]) {
+    res.send("Please login first!!");
+  }
   const randomURL = generateRandomString();
   const longURL = req.body.longURL;
   urlDatabase[randomURL] = {
@@ -99,6 +113,7 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user_id: users[req.session.user_id]
   }
+  // if user is not logged in redirect to login page.
   if (!users[req.session.user_id]) {
     res.redirect("/login")
   } else {
@@ -108,30 +123,57 @@ app.get("/urls/new", (req, res) => {
 
 // "urls/:shortURL" GET
 app.get("/urls/:shortURL", (req, res) => {
+  // see if the user is logged in but does not own the URL
+  if (!urlDatabase[req.params.shortURL]) {
+    return res.send(`<html><h1><a href="/login">Login<a> and create ShortURL.</h1></html>`);
+  }
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
     user_id: users[req.session.user_id]
   };
+  // if the user is not logged in,
+  if (!users[req.session.user_id]) {
+    return res.send(`<html><h1>Please <a href="/login">login</a> first.</h1></html>`)
+  }
+  if (urlDatabase[req.params.shortURL].userID !== req.session.user_id) {
+    res.status(403);
+    return res.send(`<html><h1>Error: 403. Please go back to the <a href="/">main page</a></h1></html>`);
+  } else {
     res.render("urls_show", templateVars);
+  }
 });
 
 //POST
 app.post("/urls/:shortURL", (req, res) => {
+  if (!urlDatabase[req.params.shortURL]) {
+    return res.send(`<html><h1><a href="/login">Login<a> and create ShortURL.</h1></html>`);
+  }
   const shortURL = req.params.shortURL;
   const newURL = req.body.longURL;
   urlDatabase[shortURL].longURL = newURL;
-  res.redirect("/urls");
+  if (!users[req.session.user_id]) {
+    return res.send(`<html><h1>Please <a href="/login">login<a> first.</h1></html>`);
+  } else {
+    res.redirect("/urls");
+  }
 });
 
 //GET
 app.get("/u/:shortURL", (req, res) => {
+  // see if URL's not existing
+  if (!urlDatabase[req.params.shortURL]) {
+    return res.send(`<html><h1>No ShortURL exists. Please go back to the <a href="/">main page</a></h1></html>`);
+  }
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
 //delete
 app.post("/urls/:shortURL/delete", (req, res) => {
+  if (!users[req.session.user_id]) {
+    return res.send(`<html><h1>Please <a href="/login">login<a> first.</h1></html>`);
+  }
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
   res.redirect("/urls");
@@ -142,15 +184,18 @@ app.post("/login", (req, res) => {
   const userEmail = req.body.user_id;
   const userPassword = req.body.password;
   if(!userEmail && !userPassword) {
-    res.send("Hey you must supply your E-mail and password. Error: 400");
+    res.status(400);
+    res.send(`<html><h1>Hey you must supply your E-mail and password. Go back to <a href="/login">login page</a>. Error: 400</h1></html>`);
   } else {
     let result = checkDuplicateEmail(userEmail);
     if (!result) {
-      res.send("Please register first. Error: 403");
+      res.status(403);
+      res.send(`<html><h1>Please <a href="/register">register</a> first. Error: 403</h1></html>`);
     } else {
       let userID = checkEmailAndPassword(userEmail, userPassword);
       if (!userID) {
-        res.send("Wrong password. Error: 403");
+        res.status(403);
+        res.send(`<html><h1>Wrong password. Go back to <a href="/login">login page</a>. Error: 403</h1></html>`);
       } else {
         req.session.user_id = userID;
         res.redirect("/urls");
@@ -162,11 +207,14 @@ app.post("/login", (req, res) => {
 // Logout
 app.post("/logout", (req, res) => {
   res.clearCookie("session");
-  res.redirect("/urls");
+  res.redirect("/");
 })
 
 // Registration Page
 app.get("/register", (req, res) => {
+  if (users[req.session.user_id]) {
+    res.redirect("/urls")
+  }
   const templateVars = {
     user_id: users[req.session.user_id]
   }
@@ -176,20 +224,21 @@ app.get("/register", (req, res) => {
 
 // Registration Handler
 app.post("/register", (req, res) => {
-
   //1. get the user email and password
   const userEmail = req.body.email;
   const userPassword = req.body.password;
   //Validation to check whether the username and password are not empty
   if(!userEmail || !userPassword){
-    res.send("Hey you must supply your E-mail and password. Error: 400");
+    res.status(400);
+    res.send(`<html><h1>Hey you must supply your E-mail and password. Go back to <a href="/login">login page</a>. Error: 400</h1></html>`);
   } else {
     //2. validation to verify that email has not been taken.
     var result = checkDuplicateEmail(userEmail);
     if(result){
       //it means the email has been taken
-      res.send("Email is already taken. Please try with another one. Error: 400");
-    } else{
+      res.status(400);
+      res.send(`<html><h1>Email is already taken. Please try with another one. Go back to <a href="/login">login page</a>. Error: 400</h1></html>`);
+    } else {
       //registration.
       const userRandomID = generateRandomString();
       users[userRandomID] =  {};
@@ -204,6 +253,9 @@ app.post("/register", (req, res) => {
 
 // rendering to login page
 app.get("/login", (req, res) => {
+  if (users[req.session.user_id]) {
+    res.redirect("/urls")
+  }
   let templateVars = {
     user_id : users[req.body.user_id]
   }
