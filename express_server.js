@@ -99,7 +99,6 @@ app.post("/urls", (req, res) => {
     longURL: longURL,
     userID: req.session.user_id
   }
-  // console.log("000000000000000000:", urlDatabase);
   res.redirect(`/urls/${randomURL}`);
 });
 
@@ -107,8 +106,6 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user_id: users[req.session.user_id]
   }
-  // console.log(req.cookies["user_id"]);
-  // console.log(users[req.cookies["user_id"]]);
   if (!users[req.session.user_id]) {
     res.redirect("/register")
   } else {
@@ -122,7 +119,6 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL: urlDatabase[req.params.shortURL].longURL,
     user_id: users[req.session.user_id]
   };
-  // console.log("short url page:", urlDatabase);
   res.render("urls_show", templateVars);
 });
 
@@ -203,7 +199,6 @@ app.post("/register", (req, res) => {
       users[userRandomID].id = userRandomID;
       users[userRandomID].email = userEmail;
       users[userRandomID].password = bcrypt.hashSync(userPassword, 10);
-      console.log("session: ", res);
       req.session.user_id = userRandomID;
       res.redirect("/urls");
     }
@@ -217,9 +212,6 @@ app.get("/login", (req, res) => {
   }
   res.render("urls_login", templateVars);
 })
-
-
-
 
 
 app.listen(PORT, () => {
